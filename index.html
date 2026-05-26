@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPROTIC — Abertura de Chamados ServiceNow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 18 18"><path d="M9 1L1 5v8l8 4 8-4V5L9 1zm0 2.2L15 6.4l-6 3-6-3 6-3.2zm-7 4.1l6 3v5.5L2 13V7.3zm8 8.5V10.3l6-3v5.5l-6 2.5z"/></svg>
+    </div>
+    <div>
+      <div class="topbar-title">IPROTIC Proatividade</div>
+      <div class="topbar-sub">Minsait · Grupo Indra</div>
+    </div>
+  </div>
+  <div class="topbar-divider"></div>
+  <span class="topbar-badge">ServiceNow</span>
+  <div class="topbar-right">
+    <span class="topbar-env">Abertura Automática · v1.0</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONTEÚDO PRINCIPAL
+══════════════════════════════════════════════════════════ -->
+<main class="page">
+
+  <!-- Cabeçalho da página -->
+  <div class="page-header">
+    <div class="page-header-eyebrow">
+      <div class="eyebrow-dot"></div>
+      <span class="eyebrow-text">Formulário de Abertura</span>
+    </div>
+    <h1>Abertura de Chamados via Automação</h1>
+    <p>Preencha os campos abaixo para configurar a abertura automática de chamados no ServiceNow. Os dados são enviados ao script Python que processa e registra cada chamado individualmente.</p>
+  </div>
+
+  <!-- Banner informativo -->
+  <div class="info-banner">
+    <div class="info-banner-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5v-4.5h1.5v4.5zm0-6h-1.5v-1.5h1.5v1.5z"/>
+      </svg>
+    </div>
+    <div class="info-banner-text">
+      <strong>Como funciona:</strong> O analista informa os e-mails dos usuários e configura os parâmetros do chamado. O script Python utiliza esses dados para abrir um chamado no ServiceNow <strong>para cada usuário</strong> informado, de forma automática. Campos marcados com <strong>Auto</strong> são preenchidos automaticamente pelo sistema.
+    </div>
+  </div>
+
+  <p class="required-notice">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="#d93025">
+      <circle cx="5.5" cy="5.5" r="5.5"/>
+      <text x="5.5" y="9" text-anchor="middle" fill="white" font-size="9" font-family="DM Sans">*</text>
+    </svg>
+    Campos marcados com asterisco são obrigatórios.
+  </p>
+
+  <form id="main-form" novalidate>
+
+    <!-- ══ STEP 01 — IDENTIFICAÇÃO DO SOLICITANTE ══ -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-header-icon green">
+          <svg viewBox="0 0 16 16" class="icon-green">
+            <path d="M8 1a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM2.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5H2.5z"/>
+          </svg>
+        </div>
+        <div class="section-header-label">
+          <h2>Identificação do Solicitante</h2>
+          <span>Informação sobre quem está solicitando o atendimento</span>
+        </div>
+        <span class="section-step-badge">STEP 01</span>
+      </div>
+      <div class="section-body">
+        <div class="field">
+          <label class="field-label">
+            Está solicitando para outra pessoa?
+            <span class="field-required">*</span>
+          </label>
+          <div class="radio-group">
+            <label class="radio-option selected" id="opt-sim">
+              <input type="radio" name="para_outra_pessoa" value="Sim" checked />
+              <div class="radio-label">
+                Sim
+                <span>O chamado será aberto em nome do usuário informado (fluxo padrão da automação)</span>
+              </div>
+            </label>
+            <label class="radio-option" id="opt-nao">
+              <input type="radio" name="para_outra_pessoa" value="Não" />
+              <div class="radio-label">
+                Não
+                <span>O chamado será aberto em nome do próprio analista</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 02 — E-MAILS DOS USUÁRIOS ══ -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-header-icon navy">
+          <svg viewBox="0 0 16 16" class="icon-navy">
+            <path d="M1 3a1 1 0 011-1h12a1 1 0 011 1v.5L8 9 1 3.5V3zm0 2.121V12a1 1 0 001 1h12a1 1 0 001-1V5.121L8 10.877 1 5.12z"/>
+          </svg>
+        </div>
+        <div class="section-header-label">
+          <h2>E-mails dos Usuários</h2>
+          <span>Chave(s) de quem receberá o atendimento</span>
+        </div>
+        <span class="section-step-badge">STEP 02</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field">
+          <label class="field-label">
+            Modo de inserção
+            <span class="field-required">*</span>
+          </label>
+          <div class="mode-tabs">
+            <button type="button" class="mode-tab active" data-mode="manual">Digitar manualmente</button>
+            <button type="button" class="mode-tab" data-mode="upload">Importar arquivo (.txt / .csv)</button>
+          </div>
+        </div>
+
+        <!-- Modo: MANUAL -->
+        <div id="mode-manual">
+          <div class="field">
+            <label class="field-label" for="email-manual">
+              Informe a(s) chave(s) / e-mail(s)
+              <span class="field-required">*</span>
+              <span class="field-tag">Um por linha</span>
+            </label>
+            <textarea
+              id="email-manual"
+              class="email-input"
+              placeholder="usuario1@empresa.com&#10;usuario2@empresa.com&#10;usuario3@empresa.com"
+              autocomplete="off"
+              spellcheck="false"
+            ></textarea>
+            <div class="email-count-row">
+              <span class="email-count" id="email-count-label">0 e-mails inseridos</span>
+              <button type="button" class="email-clear-btn" id="email-clear-btn">Limpar</button>
+            </div>
+            <div class="field-hint">
+              Insira um e-mail por linha. Exemplo: <code>joao.silva@minsait.com</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modo: UPLOAD -->
+        <div id="mode-upload" style="display:none;">
+          <div class="field">
+            <label class="field-label">
+              Selecionar arquivo
+              <span class="field-required">*</span>
+            </label>
+            <div class="drop-area" id="drop-area" onclick="document.getElementById('file-input').click()">
+              <div class="drop-area-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4M12 3v11M8 7l4-4 4 4"/>
+                </svg>
+              </div>
+              <p><strong>Clique para selecionar</strong> ou arraste o arquivo aqui</p>
+              <small>.txt ou .csv — um e-mail por linha</small>
+            </div>
+            <input type="file" id="file-input" accept=".txt,.csv" />
+            <div class="file-status" id="file-status"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ STEP 03 — CONFIGURAÇÃO DO CHAMADO ══ -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-header-icon green">
+          <svg viewBox="0 0 16 16" class="icon-green">
+            <path d="M13.854 2.146a.5.5 0 010 .708l-9 9a.5.5 0 01-.213.126l-3 1a.5.5 0 01-.632-.632l1-3a.5.5 0 01.126-.213l9-9a.5.5 0 01.708 0l2 2zm-2 .707L13 4l-9 9-1.5.5.5-1.5 9-9z"/>
+          </svg>
+        </div>
+        <div class="section-header-label">
+          <h2>Configuração do Chamado</h2>
+          <span>Parâmetros que serão aplicados a cada chamado aberto</span>
+        </div>
+        <span class="section-step-badge">STEP 03</span>
+      </div>
+      <div class="section-body">
+
+        <!-- O que você deseja? — preenchido automaticamente -->
+        <div class="field">
+          <label class="field-label" for="o-que-deseja">
+            O que você deseja?
+            <span class="field-required">*</span>
+            <span class="auto-filled-badge">
+              <svg viewBox="0 0 10 10"><path d="M1.5 5.5l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Auto
+            </span>
+          </label>
+          <select id="o-que-deseja" name="o_que_deseja" class="auto-filled" disabled>
+            <option value="Registros de Proatividade" selected>Registros de Proatividade</option>
+          </select>
+          <div class="field-hint">
+            Valor fixo definido pelo script Python. Não pode ser alterado pelo analista.
+          </div>
+        </div>
+
+        <hr class="field-divider" />
+
+        <!-- Tipo de atendimento — selecionável -->
+        <div class="field">
+          <label class="field-label" for="tipo-atendimento">
+            Tipo de atendimento
+            <span class="field-required">*</span>
+          </label>
+          <select id="tipo-atendimento" name="tipo_atendimento">
+            <option value="" disabled selected>Selecione o tipo de atendimento…</option>
+            <option value="Caixa de Correio Compartilhada: orientação sobre definição de proprietário">
+              Caixa de Correio Compartilhada: orientação sobre definição de proprietário
+            </option>
+            <option value="Conformidade Micro - Correção de usuário primário">
+              Conformidade Micro - Correção de usuário primário
+            </option>
+            <option value="Conformidade Micro - Sincronização equipamento no Intune">
+              Conformidade Micro - Sincronização equipamento no Intune
+            </option>
+            <option value="E-mail Alternativo - Orientação de como cadastrar o e-mail alternativo">
+              E-mail Alternativo - Orientação de como cadastrar o e-mail alternativo
+            </option>
+            <option value="IRPF - Orientação para instalação do Programa IRPF">
+              IRPF - Orientação para instalação do Programa IRPF
+            </option>
+            <option value="Senha Petrobras - Informação sobre a expiração da senha">
+              Senha Petrobras - Informação sobre a expiração da senha
+            </option>
+            <option value="Senha Petrobras - Orientações sobre a troca de senha">
+              Senha Petrobras - Orientações sobre a troca de senha
+            </option>
+          </select>
+        </div>
+
+        <hr class="field-divider" />
+
+        <!-- Mesa responsável — preenchida automaticamente -->
+        <div class="field">
+          <label class="field-label" for="mesa-responsavel">
+            Selecione a Mesa responsável
+            <span class="field-required">*</span>
+            <span class="auto-filled-badge">
+              <svg viewBox="0 0 10 10"><path d="M1.5 5.5l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Auto
+            </span>
+          </label>
+          <select id="mesa-responsavel" name="mesa_responsavel" class="auto-filled" disabled>
+            <option value="N1-SD_PADRAO" selected>N1-SD_PADRAO</option>
+          </select>
+          <div class="field-hint">
+            Valor fixo definido pelo script Python. Não pode ser alterado pelo analista.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ STEP 04 — INFORMAÇÕES ADICIONAIS ══ -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-header-icon amber">
+          <svg viewBox="0 0 16 16" class="icon-amber">
+            <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5v-4.5h1.5v4.5zm0-6h-1.5v-1.5h1.5v1.5z"/>
+          </svg>
+        </div>
+        <div class="section-header-label">
+          <h2>Informações Adicionais</h2>
+          <span>Descrição detalhada ou observações relevantes para o chamado</span>
+        </div>
+        <span class="section-step-badge">STEP 04</span>
+      </div>
+      <div class="section-body">
+        <div class="field">
+          <label class="field-label" for="info-adicional">
+            Descrição / Observações
+            <span class="field-tag optional">Opcional</span>
+          </label>
+          <textarea
+            id="info-adicional"
+            name="informacoes_adicionais"
+            placeholder="Descreva o contexto do atendimento, informações relevantes, dados técnicos ou qualquer detalhe que auxilie na resolução do chamado…"
+          ></textarea>
+          <div class="field-hint">Essas informações serão incluídas no corpo do chamado.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BOTÕES DE AÇÃO ══ -->
+    <div class="submit-section">
+      <div class="submit-info">
+        <strong>Pronto para enviar?</strong>
+        Revise as informações antes de confirmar. Um chamado será aberto para
+        <span id="submit-count">cada e-mail</span> inserido.
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary" id="preview-btn">
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M10.5 8a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/>
+          </svg>
+          Pré-visualizar
+        </button>
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M15.854.146a.5.5 0 01.11.54l-5.819 14.547a.75.75 0 01-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 01.124-1.33L15.314.037a.5.5 0 01.54.11z"/>
+          </svg>
+          Enviar Chamados
+        </button>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- ══ ÁREA DE PRÉ-VISUALIZAÇÃO ══ -->
+  <div id="preview-area">
+    <div class="preview-card">
+      <div class="preview-header">
+        <div class="preview-header-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M10.5 8a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/>
+          </svg>
+        </div>
+        <h3>Pré-visualização do chamado</h3>
+      </div>
+      <div class="preview-body" id="preview-body"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOAST DE NOTIFICAÇÃO
+══════════════════════════════════════════════════════════ -->
+<div id="toast">
+  <span class="t-icon">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"/>
+    </svg>
+  </span>
+  <span id="toast-msg">Operação realizada com sucesso.</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
