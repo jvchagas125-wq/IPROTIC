@@ -102,11 +102,69 @@ Recomendação: mantenha `AUTO_SUBMIT = false` até ter certeza de que os
 seletores estão corretos — um clique automático em um campo mal
 identificado pode enviar um chamado com dados incorretos.
 
+## Passo 5 — Alternativas caso o Tampermonkey esteja bloqueado pelo TI
+
+Em máquinas corporativas (imagem Petrobras), o administrador pode bloquear
+a instalação de extensões de navegador — nesse caso o Tampermonkey não
+pode ser instalado. Há duas alternativas, sem precisar de extensão:
+
+### Opção A — Bookmarklet (favorito especial), preenchimento manual por aba
+
+- Arquivo: `bookmarklet.html` (página de instalação já publicada no site,
+  acessível pelo menu ☰ → Avisos → link "alternativa em favorito").
+- Funciona arrastando um link para a barra de favoritos do navegador; ao
+  clicar nesse favorito dentro de uma aba do ServiceNow já aberta pelo
+  IPROTIC, ele preenche o formulário daquela aba.
+- Não precisa instalar nada, mas ainda exige um clique manual no favorito
+  em cada aba aberta (não é 100% automático).
+
+### Opção B — Script Python (`automacao_iprotic.py`), 100% automático
+
+- Arquivo: `automacao_iprotic.py` (novo neste pacote).
+- Usa a biblioteca **Playwright** para controlar o navegador diretamente
+  pelo protocolo de automação — não é uma extensão, então não esbarra no
+  bloqueio de instalação de extensões do TI.
+- Abre e preenche **todas** as abas sozinho, sem clique manual por aba
+  (só a confirmação final de envio, que continua manual por padrão).
+
+**Como usar:**
+
+1. No site, preencha o formulário normalmente e, em vez de (ou além de)
+   "Enviar Chamados", clique em **"Baixar dados (Python)"**. Isso baixa um
+   arquivo `iprotic-chamados.json` com os dados de todos os e-mails.
+2. Instale as dependências uma única vez (requer Python 3 instalado na
+   máquina):
+   ```
+   pip install playwright
+   playwright install chromium
+   ```
+3. Rode o script apontando para o arquivo baixado:
+   ```
+   python automacao_iprotic.py Downloads\iprotic-chamados.json
+   ```
+4. Na primeira execução, uma janela do navegador abre para você fazer
+   login no ServiceNow (SSO da Petrobras) normalmente. Depois de logado,
+   volte ao terminal e pressione ENTER — o script reaproveita essa sessão
+   salva localmente nas próximas execuções, sem pedir login de novo
+   enquanto ela não expirar.
+5. O script abre uma aba por e-mail e preenche os campos automaticamente.
+   Revise cada uma e clique em enviar manualmente (ou ajuste
+   `AUTO_SUBMIT = True` no topo do script depois de validar visualmente
+   que o preenchimento está correto — mesma recomendação de cautela do
+   Passo 4).
+
+Assim como o userscript e o bookmarklet, os textos de rótulo usados para
+encontrar os campos (`FIELD_LABELS`, no topo do script) são palpites —
+confirme/ajuste com um teste de um único e-mail antes de usar em lote.
+
 ## Fluxo resumido
 
 1. Analista preenche o formulário no site do IPROTIC e clica em
-   **Enviar Chamados**.
-2. O site abre uma aba por e-mail, cada uma com os dados na URL.
-3. O userscript, em cada aba, preenche o formulário do ServiceNow.
+   **Enviar Chamados** (ou, sem Tampermonkey/extensão, em **"Baixar dados
+   (Python)"** e roda `automacao_iprotic.py`).
+2. O site abre uma aba por e-mail, cada uma com os dados na URL (ou o
+   script Python abre e preenche cada aba sozinho).
+3. O userscript (ou o bookmarklet, ou o script Python), em cada aba,
+   preenche o formulário do ServiceNow.
 4. O analista revisa e clica em enviar em cada aba (ou, com
-   `AUTO_SUBMIT = true`, o próprio script envia).
+   `AUTO_SUBMIT = true`, o próprio script/userscript envia).
