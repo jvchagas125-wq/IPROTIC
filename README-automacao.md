@@ -3,12 +3,13 @@
 Este pacote atualiza o site para, ao clicar em **Enviar Chamados**, abrir
 uma aba do navegador para cada e-mail informado, apontando para o item de
 catálogo "Registro de Proatividade" no ServiceNow, com os dados do
-formulário passados na própria URL. Um userscript instalado no navegador
-lê esses dados e preenche o formulário automaticamente em cada aba.
+formulário passados na própria URL. A automação em Python (agente local
+ou script por arquivo — veja o Passo 5) lê esses dados e preenche o
+formulário automaticamente em cada aba, via Playwright.
 
 Testado para funcionar em **Chrome, Microsoft Edge e Mozilla Firefox** —
-o Tampermonkey e o próprio site usam apenas recursos padrão de navegador,
-sem nada específico de um só fabricante.
+o site usa apenas recursos padrão de navegador, sem nada específico de
+um só fabricante.
 
 ## Arquivos deste pacote
 
@@ -18,29 +19,26 @@ sem nada específico de um só fabricante.
   logo que você enviou. Precisam ser adicionados ao repositório na raiz
   (mesma pasta do `index.html`) — sem eles, o ícone do topo e o ícone da
   aba do navegador não aparecem.
-- `iprotic-servicenow-autofill.user.js` — userscript de auto-preenchimento,
-  instalado uma única vez no navegador de cada analista.
+- `iprotic_local_agent.py`, `iniciar_agente_iprotic.bat` — agente local
+  de automação 100% automática (Opção A do Passo 5).
+- `automacao_iprotic.py` — script por arquivo, para rodar sob demanda
+  (Opção B do Passo 5).
 
-## Passo 1 — Instalar o Tampermonkey
+## Passo 1 — Instalar o Python (se ainda não tiver)
 
-O Tampermonkey é uma extensão disponível para Chrome, Edge e Firefox — o
-processo de instalação do script é o mesmo nos três:
+Se o PC já tem Python instalado, pule este passo.
 
-1. Instale a extensão **Tampermonkey** na loja de extensões do seu
-   navegador (Chrome Web Store, Microsoft Edge Add-ons ou Firefox
-   Browser Add-ons — busque por "Tampermonkey").
-2. Clique no ícone do Tampermonkey → **Criar novo script**.
-3. Apague o conteúdo padrão e cole todo o conteúdo do arquivo
-   `iprotic-servicenow-autofill.user.js`.
-4. Salve (Ctrl+S / ícone de disquete).
-5. Repita a instalação em cada navegador que o analista for usar (a
-   configuração é por navegador, não é compartilhada entre eles).
+Instale o **Python 3.14 (64 bits)** pelo **Portal da Empresa** ou seguindo
+o procedimento da
+[base de conhecimento do ServiceNow](https://petrobras.service-now.com/kb_view.do?sys_kb_id=ff487847fb21b2d0e012fc665eefdc81&sysparm_rank=1&sysparm_tsqueryId=e1040317eb760798b0cbf69540d0cd51)
+— não instale por fora, para não esbarrar na política de instalação da TI.
 
 ## Passo 2 — Permitir pop-ups para o site do IPROTIC
 
-Como o clique em "Enviar Chamados" abre várias abas de uma vez, o
-navegador tende a bloquear a maioria delas como pop-up — isso acontece
-nos três navegadores, cada um com sua própria tela de permissões:
+Como o clique em "Enviar Chamados" pode abrir várias abas de uma vez (no
+caso de o agente local não estar rodando — veja o Passo 5), o navegador
+tende a bloquear a maioria delas como pop-up — isso acontece nos três
+navegadores, cada um com sua própria tela de permissões:
 
 **Chrome:** clique no ícone de bloqueio de pop-up que aparece na barra de
 endereço após o primeiro envio, ou acesse `chrome://settings/content/popups`
@@ -62,9 +60,10 @@ pelo bloqueio).
 ## Passo 3 — Confirmar os nomes dos campos no ServiceNow
 
 Não temos acesso direto à instância do ServiceNow da Petrobras para
-inspecionar os campos reais do formulário de catálogo. O userscript
-localiza os campos **pelo texto do rótulo** (label), usando estes
-palpites iniciais (editáveis no topo do arquivo, em `FIELD_LABELS`):
+inspecionar os campos reais do formulário de catálogo. Os scripts Python
+(`iprotic_local_agent.py` e `automacao_iprotic.py`) localizam os campos
+**pelo texto do rótulo** (label), usando estes palpites iniciais
+(editáveis no topo de cada arquivo, em `FIELD_LABELS`):
 
 | Campo do IPROTIC   | Texto de rótulo procurado no ServiceNow                  |
 |---------------------|-----------------------------------------------------------|
@@ -78,43 +77,41 @@ Antes de usar em produção:
 2. Clique com o botão direito sobre cada campo do formulário →
    **Inspecionar** → confira o texto do `<label>` associado.
 3. Se o texto real for diferente do que está em `FIELD_LABELS`, edite o
-   userscript (Tampermonkey → editar script) e ajuste as listas.
+   script Python (`iprotic_local_agent.py` e/ou `automacao_iprotic.py`)
+   em um editor de texto e ajuste as listas.
 4. Envie um teste com **um único e-mail** e confira visualmente se todos
    os campos foram preenchidos corretamente antes de usar em lote.
 
 O campo de solicitante costuma ser um campo de referência (autocomplete):
 o script digita o e-mail e tenta clicar na primeira sugestão que aparece.
 Esse é o ponto mais sensível a variações da interface do ServiceNow — se
-não funcionar, ajuste `REFERENCE_SUGGESTION_SELECTOR` no topo do
-userscript (inspecione a lista de sugestões que aparece ao digitar
+não funcionar, ajuste o seletor CSS usado em `fill_reference_field()` no
+topo do script (inspecione a lista de sugestões que aparece ao digitar
 manualmente no campo, e copie o seletor CSS do item da lista).
 
 ## Passo 4 — Auto-envio (opcional, use com cautela)
 
-Por padrão, o userscript **não** clica automaticamente no botão de
-enviar do ServiceNow (`AUTO_SUBMIT = false`) — os campos ficam
-preenchidos, mas o analista revisa e confirma manualmente em cada aba.
-Depois de validar que o preenchimento está correto para todos os campos,
-você pode mudar `AUTO_SUBMIT` para `true` no userscript para que o
-próprio chamado seja enviado sem intervenção manual em cada aba.
+Por padrão, os scripts **não** clicam automaticamente no botão de enviar
+do ServiceNow (`AUTO_SUBMIT = False`) — os campos ficam preenchidos, mas
+o analista revisa e confirma manualmente em cada aba. Depois de validar
+que o preenchimento está correto para todos os campos, você pode mudar
+`AUTO_SUBMIT` para `True` no topo do script para que o próprio chamado
+seja enviado sem intervenção manual em cada aba.
 
-Recomendação: mantenha `AUTO_SUBMIT = false` até ter certeza de que os
+Recomendação: mantenha `AUTO_SUBMIT = False` até ter certeza de que os
 seletores estão corretos — um clique automático em um campo mal
 identificado pode enviar um chamado com dados incorretos.
 
-## Passo 5 — Automação 100% automática via Python (sem extensão)
+## Passo 5 — Automação 100% automática via Python
 
-Em máquinas corporativas (imagem Petrobras), o administrador pode bloquear
-a instalação de extensões de navegador — nesse caso o Tampermonkey não
-pode ser instalado. A alternativa é usar **Playwright** para controlar o
-navegador diretamente pelo protocolo de automação — não é uma extensão,
-então não esbarra no bloqueio de instalação de extensões do TI. Há duas
-formas de usar, com o mesmo motor por trás:
+O preenchimento automático dos chamados é feito via **Playwright**, que
+controla o navegador diretamente pelo protocolo de automação — não é uma
+extensão de navegador, então não esbarra em bloqueios de instalação de
+extensões da TI. Há duas formas de usar, com o mesmo motor por trás:
 
 ### Opção A — Agente local (`iprotic_local_agent.py`), instantâneo
 
-- Arquivos: `iprotic_local_agent.py` e `iniciar_agente_iprotic.bat` (novos
-  neste pacote).
+- Arquivos: `iprotic_local_agent.py` e `iniciar_agente_iprotic.bat`.
 - Fica rodando em segundo plano na máquina do analista, escutando em
   `http://127.0.0.1:8765`. O site detecta esse agente sozinho: ao clicar
   em **"Enviar Chamados"**, os dados são enviados direto para o agente —
@@ -126,8 +123,8 @@ formas de usar, com o mesmo motor por trás:
 
 **Como usar:**
 
-1. Instale as dependências uma única vez (requer Python 3 instalado na
-   máquina):
+1. Instale as dependências uma única vez (depois de instalar o Python —
+   veja o Passo 1):
    ```
    pip install playwright
    playwright install chromium
@@ -143,9 +140,7 @@ formas de usar, com o mesmo motor por trás:
 4. No site, preencha o formulário e clique em **Enviar Chamados**
    normalmente — pronto, sem mais nenhum passo manual.
 5. Revise cada aba aberta e confirme o envio manualmente (ou ajuste
-   `AUTO_SUBMIT = True` no topo do script depois de validar visualmente
-   que o preenchimento está correto — mesma recomendação de cautela do
-   Passo 4).
+   `AUTO_SUBMIT = True` — veja o Passo 4).
 
 **Deixar o agente iniciando sozinho com o Windows (opcional):**
 pressione `Win+R`, digite `shell:startup` e Enter para abrir a pasta de
@@ -179,7 +174,7 @@ modo: você baixa os dados manualmente e roda o script quando quiser.
 
 Nos dois casos, os textos de rótulo usados para encontrar os campos
 (`FIELD_LABELS`, no topo de cada script) são palpites — confirme/ajuste
-com um teste de um único e-mail antes de usar em lote.
+com um teste de um único e-mail antes de usar em lote (Passo 3).
 
 ## Fluxo resumido
 
@@ -192,4 +187,4 @@ com um teste de um único e-mail antes de usar em lote.
    "Baixar dados (Python)" + `automacao_iprotic.py` depois, em lote).
 3. O agente/script preenche o formulário do ServiceNow em cada aba.
 4. O analista revisa e clica em enviar em cada aba (ou, com
-   `AUTO_SUBMIT = true`, o próprio script envia).
+   `AUTO_SUBMIT = True`, o próprio script envia).
