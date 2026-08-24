@@ -5,29 +5,30 @@
    ============================================================ */
 
 :root {
-  --sn-green:       #82b814;
-  --sn-green-dark:  #5e8a0a;
-  --sn-green-light: #f0f7e0;
-  --sn-green-mid:   #d4eaa0;
-  --sn-navy:        #1a2942;
-  --sn-navy-mid:    #243653;
-  --sn-navy-light:  #e8edf5;
-  --sn-blue-accent: #3b82f6;
-  --sn-gray-100:    #f4f6f9;
-  --sn-gray-200:    #e5eaf1;
-  --sn-gray-400:    #a3afc4;
-  --sn-gray-600:    #5d6b85;
-  --sn-gray-800:    #2c3a52;
+  /* Paleta extraída da logo IPROTIC (vermelho/carmim sobre grená escuro) */
+  --sn-green:       #e5484d;  /* vermelho vivo — cor de marca / ação primária */
+  --sn-green-dark:  #a11d36;  /* vermelho profundo — hover / texto de destaque */
+  --sn-green-light: #fdecee;  /* rosa muito claro — fundos suaves */
+  --sn-green-mid:   #f3b9c0;  /* rosa médio — bordas suaves */
+  --sn-navy:        #2a121b;  /* grená quase preto — texto principal / topbar */
+  --sn-navy-mid:    #3d1a25;  /* grená um pouco mais claro */
+  --sn-navy-light:  #eee7e5;  /* cinza-neutro claro — contraste sutil ao rosa */
+  --sn-blue-accent: #8e2440;  /* ameixa/vinho — acentos informativos */
+  --sn-gray-100:    #f8f4f5;
+  --sn-gray-200:    #ecdfe2;
+  --sn-gray-400:    #b39ba1;
+  --sn-gray-600:    #7d5c64;
+  --sn-gray-800:    #3a2028;
   --sn-white:       #ffffff;
-  --sn-red:         #d93025;
+  --sn-red:         #d6293f;
   --sn-red-light:   #fce8e6;
   --sn-amber:       #f59e0b;
   --sn-amber-light: #fef3c7;
   --radius-sm:  6px;
   --radius-md:  10px;
   --radius-lg:  14px;
-  --shadow-card:  0 2px 12px rgba(26,41,66,0.09), 0 1px 3px rgba(26,41,66,0.06);
-  --shadow-hover: 0 6px 24px rgba(26,41,66,0.14), 0 2px 6px rgba(26,41,66,0.08);
+  --shadow-card:  0 2px 12px rgba(42,18,27,0.09), 0 1px 3px rgba(42,18,27,0.06);
+  --shadow-hover: 0 6px 24px rgba(42,18,27,0.14), 0 2px 6px rgba(42,18,27,0.08);
   --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
 }
 
@@ -35,7 +36,7 @@
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background: #f0f3f8;
+  background: #f5eff0;
   color: var(--sn-gray-800);
   min-height: 100vh;
   padding: 0;
@@ -60,15 +61,18 @@ body {
   gap: 10px;
 }
 .logo-icon {
-  width: 30px;
-  height: 30px;
-  background: var(--sn-green);
-  border-radius: 7px;
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle at 50% 35%, var(--sn-green) 0%, var(--sn-navy) 100%);
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(229,72,77,0.45);
+  flex-shrink: 0;
 }
-.logo-icon svg { width: 18px; height: 18px; fill: var(--sn-navy); }
+.logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .topbar-title {
   font-size: 15px;
   font-weight: 600;
