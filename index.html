@@ -155,7 +155,7 @@
           </label>
           <div class="mode-tabs">
             <button type="button" class="mode-tab active" data-mode="manual">Digitar manualmente</button>
-            <button type="button" class="mode-tab" data-mode="upload">Importar arquivo (.txt / .csv)</button>
+            <button type="button" class="mode-tab" data-mode="upload">Importar arquivo (.txt / .csv / .xlsx)</button>
           </div>
         </div>
 
@@ -198,9 +198,9 @@
                 </svg>
               </div>
               <p><strong>Clique para selecionar</strong> ou arraste o arquivo aqui</p>
-              <small>.txt ou .csv — um e-mail por linha</small>
+              <small>.txt, .csv, .xlsx ou .xls — um e-mail por linha (ou por célula, na planilha)</small>
             </div>
-            <input type="file" id="file-input" accept=".txt,.csv" />
+            <input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls" />
             <div class="file-status" id="file-status"></div>
           </div>
         </div>
@@ -385,6 +385,8 @@
   <span id="toast-msg">Operação realizada com sucesso.</span>
 </div>
 
+<!-- SheetJS — leitura de planilhas .xlsx / .xls no navegador -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
