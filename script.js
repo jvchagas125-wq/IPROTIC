@@ -21,12 +21,16 @@ const AUTOMATION_DEFAULTS = {
 const SERVICENOW_CATALOG_URL =
   'https://petrobras.service-now.com/cs?id=sc_cat_item&sys_id=26e4bc991ba9c2d8feb132681b4bcb84&table=sc_cat_item&searchTerm=registro%20de%20proatividade';
 
-/* Intervalo (ms) entre a abertura de cada aba. Um pequeno atraso
-   ajuda o navegador a não tratar todas as aberturas como uma
-   única rajada de pop-ups, mas abrir muitas abas de uma vez pode
-   ainda assim ser bloqueado — por isso é essencial permitir
-   pop-ups para este site (ver banner de aviso na página). */
-const TAB_OPEN_INTERVAL_MS = 250;
+/* As abas são abertas de forma SÍNCRONA (sem setTimeout/delay) de
+   propósito: no Firefox, qualquer chamada a window.open() feita
+   fora da pilha de execução direta do clique (mesmo com um
+   setTimeout de 0ms) deixa de ser tratada como "iniciada pelo
+   usuário" e é bloqueada de forma ainda mais agressiva do que no
+   Chrome/Edge. Abrir tudo em um laço síncrono, dentro do próprio
+   handler de clique, é o que funciona de forma mais consistente
+   nos três navegadores — mesmo assim, abrir muitas abas de uma vez
+   pode ser bloqueado, por isso é essencial permitir pop-ups para
+   este site (ver banner de aviso na página). */
 
 /* ──────────────────────────────────────────────────────────
    INICIALIZAÇÃO
@@ -285,7 +289,19 @@ function initRetryBlocked() {
     const urls = lastBlockedUrls;
     lastBlockedUrls = [];
     hideBlockedNotice();
-    openUrlsInTabs(urls);
+
+    openUrlsInTabs(urls).then(({ opened, blocked }) => {
+      if (blocked.length > 0) {
+        lastBlockedUrls = blocked;
+        showBlockedNotice(blocked.length);
+        showToast(
+          `${opened} aba${opened !== 1 ? 's' : ''} aberta${opened !== 1 ? 's' : ''}, ${blocked.length} ainda bloqueada${blocked.length !== 1 ? 's' : ''}. Permita pop-ups para este site e tente de novo.`,
+          'error'
+        );
+      } else {
+        showToast(`${opened} aba${opened !== 1 ? 's' : ''} reaberta${opened !== 1 ? 's' : ''} com sucesso.`, 'success');
+      }
+    });
   });
 }
 
@@ -309,31 +325,33 @@ function buildServiceNowUrl(data, email) {
 }
 
 /**
- * Abre uma lista de URLs, uma aba por vez, com um pequeno
- * intervalo entre elas. Retorna { opened, blocked } via callback,
- * já que window.open é assíncrono em relação ao popup blocker.
+ * Abre uma lista de URLs, uma aba para cada uma, de forma síncrona
+ * (mesmo laço de execução do clique que chamou esta função — ver
+ * nota sobre TAB_OPEN_INTERVAL_MS acima). Retorna { opened, blocked }
+ * — "blocked" são as URLs que o navegador recusou abrir.
+ *
+ * Continua com formato de Promise para manter a mesma forma de uso
+ * no restante do código, mas resolve de forma síncrona/imediata.
  */
 function openUrlsInTabs(urls) {
-  return new Promise(resolve => {
-    const blocked = [];
-    let opened = 0;
+  const blocked = [];
+  let opened = 0;
 
-    urls.forEach((url, i) => {
-      setTimeout(() => {
-        const win = window.open(url, '_blank');
-        if (win) {
-          opened++;
-        } else {
-          blocked.push(url);
-        }
-        if (i === urls.length - 1) {
-          resolve({ opened, blocked });
-        }
-      }, i * TAB_OPEN_INTERVAL_MS);
-    });
+  for (const url of urls) {
+    let win = null;
+    try {
+      win = window.open(url, '_blank');
+    } catch (err) {
+      win = null;
+    }
+    if (win) {
+      opened++;
+    } else {
+      blocked.push(url);
+    }
+  }
 
-    if (urls.length === 0) resolve({ opened: 0, blocked: [] });
-  });
+  return Promise.resolve({ opened, blocked });
 }
 
 function runOpenTickets(emails, data) {
