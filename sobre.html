@@ -110,11 +110,14 @@
       <div class="field">
         <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.7;">
           O analista preenche o formulário na página inicial (e-mails dos usuários, tipo de
-          atendimento e observações) e clica em <strong>Enviar Chamados</strong>. O site abre
-          uma aba do navegador para cada e-mail informado, apontando para o item de catálogo
-          correspondente no ServiceNow. Um userscript instalado no navegador (via Tampermonkey)
-          lê os dados enviados e preenche automaticamente cada formulário do ServiceNow, restando
-          ao analista apenas revisar e confirmar o envio em cada aba.
+          atendimento e observações) e clica em <strong>Enviar Chamados</strong>. Se o agente
+          local <code>iprotic_local_agent.py</code> estiver rodando em segundo plano no PC, o
+          site envia os dados direto para ele, que abre uma aba do navegador para cada e-mail
+          informado e preenche automaticamente cada formulário do ServiceNow — sem download nem
+          passo manual algum. Sem o agente rodando, o site apenas abre as abas em branco para
+          preenchimento manual (ou o analista pode usar o botão "Baixar dados (Python)" para
+          rodar o script <code>automacao_iprotic.py</code> depois, em lote). De toda forma,
+          resta ao analista revisar e confirmar o envio em cada aba.
         </p>
       </div>
     </div>
@@ -140,7 +143,7 @@
         </p>
         <ul style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.9; padding-left:20px;">
           <li><strong>Abertura de abas</strong> — o próprio navegador (<code>window.open</code>), compatível com Chrome, Edge e Firefox.</li>
-          <li><strong>Tampermonkey</strong> — extensão de userscript que preenche automaticamente o formulário do ServiceNow em cada aba.</li>
+          <li><strong>Python + Playwright</strong> — agente local <code>iprotic_local_agent.py</code> (ou o script <code>automacao_iprotic.py</code>, em lote) que abre e preenche automaticamente o formulário do ServiceNow em cada aba, sem precisar de extensão de navegador.</li>
           <li><strong>SheetJS</strong> — biblioteca usada para ler planilhas <code>.xlsx</code>/<code>.xls</code> importadas com a lista de e-mails.</li>
           <li><strong>ServiceNow</strong> — Catálogo de Serviços, onde os chamados de "Registro de Proatividade" são efetivamente abertos.</li>
         </ul>
