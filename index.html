@@ -26,7 +26,7 @@
   <div class="topbar-divider"></div>
   <span class="topbar-badge">ServiceNow</span>
   <div class="topbar-right">
-    <span class="topbar-env">Abertura Automática · v1.0</span>
+    <span class="topbar-env">Abertura Automática · v2.0</span>
   </div>
 </header>
 
@@ -42,7 +42,7 @@
       <span class="eyebrow-text">Formulário de Abertura</span>
     </div>
     <h1>Abertura de Chamados via Automação</h1>
-    <p>Preencha os campos abaixo para configurar a abertura automática de chamados no ServiceNow. Os dados são enviados ao script Python que processa e registra cada chamado individualmente.</p>
+    <p>Preencha os campos abaixo para configurar a abertura automática de chamados no ServiceNow. Ao enviar, uma aba do navegador é aberta para cada e-mail informado, já com os dados preenchidos no formulário do ServiceNow.</p>
   </div>
 
   <!-- Banner informativo -->
@@ -53,7 +53,32 @@
       </svg>
     </div>
     <div class="info-banner-text">
-      <strong>Como funciona:</strong> O analista informa os e-mails dos usuários e configura os parâmetros do chamado. O script Python utiliza esses dados para abrir um chamado no ServiceNow <strong>para cada usuário</strong> informado, de forma automática. Campos marcados com <strong>Auto</strong> são preenchidos automaticamente pelo sistema.
+      <strong>Como funciona:</strong> O analista informa os e-mails dos usuários e configura os parâmetros do chamado. Ao clicar em <strong>Enviar Chamados</strong>, o site abre <strong>uma aba do navegador para cada e-mail</strong> informado, apontando para o item de catálogo do ServiceNow. Um userscript instalado no navegador (Tampermonkey) preenche automaticamente cada formulário com os dados configurados aqui. Campos marcados com <strong>Auto</strong> são preenchidos automaticamente pelo sistema.
+    </div>
+  </div>
+
+  <!-- Aviso sobre bloqueio de pop-ups -->
+  <div class="info-banner warning">
+    <div class="info-banner-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8.982 1.566a1.13 1.13 0 00-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 01-1.1 0L7.1 5.995A.905.905 0 018 5zm.002 6a1 1 0 110 2 1 1 0 010-2z"/>
+      </svg>
+    </div>
+    <div class="info-banner-text">
+      <strong>Importante:</strong> como várias abas são abertas de uma vez, o Chrome pode bloquear parte delas como pop-up. Permita pop-ups para este site (ícone na barra de endereço ou <code>chrome://settings/content/popups</code>) antes de enviar. Se alguma aba for bloqueada, um botão para reabri-la aparecerá abaixo do formulário.
+    </div>
+  </div>
+
+  <!-- Aviso de abas bloqueadas (aparece somente quando necessário) -->
+  <div class="info-banner warning" id="blocked-notice" style="display:none;">
+    <div class="info-banner-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8.982 1.566a1.13 1.13 0 00-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 01-1.1 0L7.1 5.995A.905.905 0 018 5zm.002 6a1 1 0 110 2 1 1 0 010-2z"/>
+      </svg>
+    </div>
+    <div class="info-banner-text">
+      <strong><span id="blocked-count">0</span> aba(s)</strong> foram bloqueadas pelo navegador.
+      <button type="button" class="btn btn-secondary" id="retry-blocked-btn" style="margin-top:8px;">Reabrir abas bloqueadas</button>
     </div>
   </div>
 
@@ -213,7 +238,7 @@
             <option value="Registros de Proatividade" selected>Registros de Proatividade</option>
           </select>
           <div class="field-hint">
-            Valor fixo definido pelo script Python. Não pode ser alterado pelo analista.
+            Valor fixo do fluxo de automação. Não pode ser alterado pelo analista.
           </div>
         </div>
 
@@ -267,7 +292,7 @@
             <option value="N1-SD_PADRAO" selected>N1-SD_PADRAO</option>
           </select>
           <div class="field-hint">
-            Valor fixo definido pelo script Python. Não pode ser alterado pelo analista.
+            Valor fixo do fluxo de automação. Não pode ser alterado pelo analista.
           </div>
         </div>
 
@@ -308,7 +333,7 @@
     <div class="submit-section">
       <div class="submit-info">
         <strong>Pronto para enviar?</strong>
-        Revise as informações antes de confirmar. Um chamado será aberto para
+        Revise as informações antes de confirmar. Uma aba do ServiceNow será aberta para
         <span id="submit-count">cada e-mail</span> inserido.
       </div>
       <div class="btn-group">
