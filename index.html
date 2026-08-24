@@ -9,12 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body data-page="index">
 
 <!-- ══════════════════════════════════════════════════════════
      TOPBAR
 ══════════════════════════════════════════════════════════ -->
 <header class="topbar">
+  <button type="button" class="hamburger-btn" id="hamburger-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="side-menu">
+    <span></span><span></span><span></span>
+  </button>
   <div class="topbar-logo">
     <div class="logo-icon">
       <img src="logo-icon.png" alt="IPROTIC" />
@@ -29,6 +32,29 @@
     <span class="topbar-env">Abertura Automática · v2.0</span>
   </div>
 </header>
+
+<!-- ══════════════════════════════════════════════════════════
+     MENU LATERAL (hambúrguer)
+══════════════════════════════════════════════════════════ -->
+<div class="side-menu-backdrop" id="side-menu-backdrop"></div>
+<nav class="side-menu" id="side-menu" aria-label="Menu principal">
+  <div class="side-menu-header">
+    <div class="side-menu-logo">
+      <img src="logo-icon.png" alt="IPROTIC" />
+      <span>IPROTIC</span>
+    </div>
+    <button type="button" class="side-menu-close" id="side-menu-close" aria-label="Fechar menu">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M1 1l12 12M13 1L1 13"/>
+      </svg>
+    </button>
+  </div>
+  <ul class="side-menu-links">
+    <li><a href="index.html" data-page="index">Início</a></li>
+    <li><a href="sobre.html" data-page="sobre">Sobre</a></li>
+    <li><a href="avisos.html" data-page="avisos">Avisos</a></li>
+  </ul>
+</nav>
 
 <!-- ══════════════════════════════════════════════════════════
      CONTEÚDO PRINCIPAL
@@ -387,6 +413,9 @@
   </span>
   <span id="toast-msg">Operação realizada com sucesso.</span>
 </div>
+
+<!-- Menu lateral (hambúrguer) — compartilhado entre todas as páginas -->
+<script src="nav.js"></script>
 
 <!-- SheetJS — leitura de planilhas .xlsx / .xls no navegador -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
