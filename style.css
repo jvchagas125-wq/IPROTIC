@@ -176,6 +176,14 @@ body {
   font-weight: 500;
 }
 
+/* Variante de aviso (pop-ups / abas bloqueadas) */
+.info-banner.warning {
+  background: var(--sn-amber-light);
+  border-left-color: var(--sn-amber);
+}
+.info-banner.warning .info-banner-icon { color: var(--sn-amber); }
+.info-banner.warning .info-banner-text strong { color: #92660a; }
+
 /* ── SECTION ── */
 .section {
   background: var(--sn-white);
