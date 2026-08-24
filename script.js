@@ -92,7 +92,7 @@ function initEmailCounter() {
     countLabel.classList.toggle('has-emails', n > 0);
     clearBtn.classList.toggle('visible', n > 0);
     submitCount.innerHTML = n > 0
-      ? `cada um dos <strong>${n} e-mail${n > 1 ? 's' : ''}</strong> inserido${n > 1 ? 's' : ''}`
+      ? `cada um dos <strong>${n} e-mail${n > 1 ? 's' : ''}</strong>`
       : 'cada e-mail';
   });
 
