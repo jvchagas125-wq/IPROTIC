@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPreview();
   initSubmit();
   initRetryBlocked();
+  initDownloadJson();
 });
 
 /* ──────────────────────────────────────────────────────────
@@ -302,6 +303,45 @@ function initRetryBlocked() {
         showToast(`${opened} aba${opened !== 1 ? 's' : ''} reaberta${opened !== 1 ? 's' : ''} com sucesso.`, 'success');
       }
     });
+  });
+}
+
+/**
+ * Gera o arquivo iprotic-chamados.json com os dados do formulário,
+ * no formato que o script Python (automacao_iprotic.py) espera —
+ * alternativa 100% automática para quem não pode instalar o
+ * Tampermonkey (bloqueio de TI) nem usar o bookmarklet.
+ */
+function initDownloadJson() {
+  const btn = document.getElementById('download-json-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const data = collectData();
+    if (!data) return;
+
+    const payload = {
+      gerado_em: new Date().toISOString(),
+      tickets: data.emails.map(email => ({
+        email,
+        para_outra_pessoa: data.para_outra_pessoa,
+        o_que_deseja: data.o_que_deseja,
+        tipo_atendimento: data.tipo_atendimento,
+        mesa_responsavel: data.mesa_responsavel,
+        info_adicional: data.info_adicional,
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'iprotic-chamados.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    showToast(`Arquivo baixado com ${data.emails.length} chamado${data.emails.length !== 1 ? 's' : ''}. Use-o com o automacao_iprotic.py.`, 'success');
   });
 }
 
