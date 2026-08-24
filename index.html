@@ -71,33 +71,6 @@
     <p>Preencha os campos abaixo para configurar a abertura automática de chamados no ServiceNow. Ao enviar, uma aba do navegador é aberta para cada e-mail informado, já com os dados preenchidos no formulário do ServiceNow.</p>
   </div>
 
-  <!-- Banner informativo -->
-  <div class="info-banner">
-    <div class="info-banner-icon">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5v-4.5h1.5v4.5zm0-6h-1.5v-1.5h1.5v1.5z"/>
-      </svg>
-    </div>
-    <div class="info-banner-text">
-      <strong>Como funciona:</strong> O analista informa os e-mails dos usuários e configura os parâmetros do chamado. Ao clicar em <strong>Enviar Chamados</strong>, o site abre <strong>uma aba do navegador para cada e-mail</strong> informado, apontando para o item de catálogo do ServiceNow. Um userscript instalado no navegador (Tampermonkey) preenche automaticamente cada formulário com os dados configurados aqui. Campos marcados com <strong>Auto</strong> são preenchidos automaticamente pelo sistema.
-    </div>
-  </div>
-
-  <!-- Aviso sobre bloqueio de pop-ups -->
-  <div class="info-banner warning">
-    <div class="info-banner-icon">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M8.982 1.566a1.13 1.13 0 00-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 01-1.1 0L7.1 5.995A.905.905 0 018 5zm.002 6a1 1 0 110 2 1 1 0 010-2z"/>
-      </svg>
-    </div>
-    <div class="info-banner-text">
-      <strong>Importante:</strong> como várias abas são abertas de uma vez, o navegador pode bloquear parte delas como pop-up. Permita pop-ups para este site antes de enviar:
-      <br><strong>Chrome/Edge:</strong> clique no ícone de bloqueio de pop-up que aparece na barra de endereço após o primeiro envio, ou acesse <code>chrome://settings/content/popups</code> (Edge: <code>edge://settings/content/popups</code>) e adicione o endereço do site à lista de permitidos.
-      <br><strong>Firefox:</strong> na notificação "Firefox impediu que este site abrisse uma janela pop-up", clique em <strong>Preferências</strong> → <strong>Permitir</strong>, ou acesse <code>about:preferences#privacy</code> → Permissões → Bloquear janelas pop-up → Exceções, e adicione o endereço do site.
-      <br>Se mesmo assim alguma aba for bloqueada, um botão para reabri-la aparecerá abaixo do formulário.
-    </div>
-  </div>
-
   <!-- Aviso de abas bloqueadas (aparece somente quando necessário) -->
   <div class="info-banner warning" id="blocked-notice" style="display:none;">
     <div class="info-banner-icon">
