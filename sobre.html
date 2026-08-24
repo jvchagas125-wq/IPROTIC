@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPROTIC — Sobre</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="sobre">
+
+<!-- ══════════════════════════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <button type="button" class="hamburger-btn" id="hamburger-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="side-menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="topbar-logo">
+    <div class="logo-icon">
+      <img src="logo-icon.png" alt="IPROTIC" />
+    </div>
+    <div>
+      <div class="topbar-title">IPROTIC</div>
+    </div>
+  </div>
+  <div class="topbar-divider"></div>
+  <span class="topbar-badge">Automação ServiceNow</span>
+  <div class="topbar-right">
+    <span class="topbar-env">Abertura Automática · v2.0</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════
+     MENU LATERAL (hambúrguer)
+══════════════════════════════════════════════════════════ -->
+<div class="side-menu-backdrop" id="side-menu-backdrop"></div>
+<nav class="side-menu" id="side-menu" aria-label="Menu principal">
+  <div class="side-menu-header">
+    <div class="side-menu-logo">
+      <img src="logo-icon.png" alt="IPROTIC" />
+      <span>IPROTIC</span>
+    </div>
+    <button type="button" class="side-menu-close" id="side-menu-close" aria-label="Fechar menu">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M1 1l12 12M13 1L1 13"/>
+      </svg>
+    </button>
+  </div>
+  <ul class="side-menu-links">
+    <li><a href="index.html" data-page="index">Início</a></li>
+    <li><a href="sobre.html" data-page="sobre">Sobre</a></li>
+    <li><a href="avisos.html" data-page="avisos">Avisos</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONTEÚDO PRINCIPAL
+══════════════════════════════════════════════════════════ -->
+<main class="page">
+
+  <div class="page-header">
+    <div class="page-header-eyebrow">
+      <div class="eyebrow-dot"></div>
+      <span class="eyebrow-text">Sobre o projeto</span>
+    </div>
+    <h1>Sobre o IPROTIC</h1>
+    <p>Uma ferramenta interna para agilizar a abertura de chamados repetitivos no ServiceNow, feita para quem abre o mesmo tipo de registro para várias pessoas ao mesmo tempo.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-icon green">
+        <svg viewBox="0 0 16 16" class="icon-green">
+          <path d="M8 1a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM2.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5H2.5z"/>
+        </svg>
+      </div>
+      <div class="section-header-label">
+        <h2>O que é</h2>
+        <span>Objetivo da automação</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.7;">
+          O IPROTIC nasceu para eliminar o trabalho repetitivo de abrir, um a um, chamados de
+          "Registro de Proatividade" no ServiceNow. Em vez de preencher o mesmo formulário
+          dezenas de vezes, o analista informa a lista de e-mails uma única vez, e a
+          automação cuida do resto — abrindo e preenchendo um chamado para cada pessoa da lista.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-icon navy">
+        <svg viewBox="0 0 16 16" class="icon-navy">
+          <path d="M13.854 2.146a.5.5 0 010 .708l-9 9a.5.5 0 01-.213.126l-3 1a.5.5 0 01-.632-.632l1-3a.5.5 0 01.126-.213l9-9a.5.5 0 01.708 0l2 2zm-2 .707L13 4l-9 9-1.5.5.5-1.5 9-9z"/>
+        </svg>
+      </div>
+      <div class="section-header-label">
+        <h2>Como funciona</h2>
+        <span>Do formulário à abertura do chamado</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.7;">
+          O analista preenche o formulário na página inicial (e-mails dos usuários, tipo de
+          atendimento e observações) e clica em <strong>Enviar Chamados</strong>. O site abre
+          uma aba do navegador para cada e-mail informado, apontando para o item de catálogo
+          correspondente no ServiceNow. Um userscript instalado no navegador (via Tampermonkey)
+          lê os dados enviados e preenche automaticamente cada formulário do ServiceNow, restando
+          ao analista apenas revisar e confirmar o envio em cada aba.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-icon amber">
+        <svg viewBox="0 0 16 16" class="icon-amber">
+          <path d="M9 2L2 6v1h14V6L9 2zM3 8v6H2v1h14v-1h-1V8h-2v6H9V8H7v6H5V8H3z"/>
+        </svg>
+      </div>
+      <div class="section-header-label">
+        <h2>Tecnologias utilizadas</h2>
+        <span>O que roda por trás da automação</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field" style="margin-bottom:12px;">
+        <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.7; margin-bottom:10px;">
+          O site é feito apenas com HTML, CSS e JavaScript — sem servidor ou backend próprio — e
+          roda direto no navegador do analista:
+        </p>
+        <ul style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.9; padding-left:20px;">
+          <li><strong>Abertura de abas</strong> — o próprio navegador (<code>window.open</code>), compatível com Chrome, Edge e Firefox.</li>
+          <li><strong>Tampermonkey</strong> — extensão de userscript que preenche automaticamente o formulário do ServiceNow em cada aba.</li>
+          <li><strong>SheetJS</strong> — biblioteca usada para ler planilhas <code>.xlsx</code>/<code>.xls</code> importadas com a lista de e-mails.</li>
+          <li><strong>ServiceNow</strong> — Catálogo de Serviços, onde os chamados de "Registro de Proatividade" são efetivamente abertos.</li>
+        </ul>
+      </div>
+      <div class="field-hint">IPROTIC · Abertura Automática · v2.0</div>
+    </div>
+  </div>
+
+</main>
+
+<script src="nav.js"></script>
+</body>
+</html>
