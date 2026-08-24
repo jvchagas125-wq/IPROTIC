@@ -5,14 +5,28 @@
    ============================================================ */
 
 /* ──────────────────────────────────────────────────────────
-   CONSTANTES — valores fixos vinculados ao script Python
-   Estes valores são preenchidos automaticamente e refletem
-   exatamente os parâmetros esperados pelo script Python.
+   CONSTANTES — valores fixos do fluxo de automação
+   Estes valores refletem exatamente os parâmetros do
+   catálogo de serviços no ServiceNow.
 ────────────────────────────────────────────────────────── */
-const PYTHON_DEFAULTS = {
+const AUTOMATION_DEFAULTS = {
   o_que_deseja:   'Registros de Proatividade',
   mesa_responsavel: 'N1-SD_PADRAO'
 };
+
+/* Link do item de catálogo no ServiceNow (Registro de Proatividade).
+   Cada aba aberta usa esse link como base, acrescentando os dados
+   do chamado como parâmetros de URL (lidos pelo userscript de
+   auto-preenchimento — veja README-automacao.md). */
+const SERVICENOW_CATALOG_URL =
+  'https://petrobras.service-now.com/cs?id=sc_cat_item&sys_id=26e4bc991ba9c2d8feb132681b4bcb84&table=sc_cat_item&searchTerm=registro%20de%20proatividade';
+
+/* Intervalo (ms) entre a abertura de cada aba. Um pequeno atraso
+   ajuda o navegador a não tratar todas as aberturas como uma
+   única rajada de pop-ups, mas abrir muitas abas de uma vez pode
+   ainda assim ser bloqueado — por isso é essencial permitir
+   pop-ups para este site (ver banner de aviso na página). */
+const TAB_OPEN_INTERVAL_MS = 250;
 
 /* ──────────────────────────────────────────────────────────
    INICIALIZAÇÃO
@@ -24,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFileUpload();
   initPreview();
   initSubmit();
+  initRetryBlocked();
 });
 
 /* ──────────────────────────────────────────────────────────
@@ -173,55 +188,128 @@ function initPreview() {
 }
 
 /* ──────────────────────────────────────────────────────────
-   ENVIO DO FORMULÁRIO
+   ENVIO DO FORMULÁRIO — abre uma aba do ServiceNow por e-mail
 ────────────────────────────────────────────────────────── */
+
+/* Guarda as URLs que o navegador bloqueou na última tentativa,
+   para permitir um "reabrir" com um clique explícito do analista
+   (necessário porque window.open só funciona de forma confiável
+   quando disparado diretamente por uma ação do usuário). */
+let lastBlockedUrls = [];
+
 function initSubmit() {
   document.getElementById('main-form').addEventListener('submit', e => {
     e.preventDefault();
     const data = collectData();
     if (!data) return;
+    runOpenTickets(data.emails, data);
+  });
+}
 
-    const btn = document.getElementById('submit-btn');
-    btn.disabled = true;
+function initRetryBlocked() {
+  const retryBtn = document.getElementById('retry-blocked-btn');
+  if (!retryBtn) return;
+  retryBtn.addEventListener('click', () => {
+    const urls = lastBlockedUrls;
+    lastBlockedUrls = [];
+    hideBlockedNotice();
+    openUrlsInTabs(urls);
+  });
+}
+
+/**
+ * Constrói a URL do item de catálogo do ServiceNow para um e-mail
+ * específico, levando junto os dados do chamado como parâmetros
+ * de URL. O userscript de auto-preenchimento (Tampermonkey) lê
+ * esses parâmetros e preenche o formulário automaticamente.
+ */
+function buildServiceNowUrl(data, email) {
+  const params = new URLSearchParams({
+    iprotic_requester: email,
+    iprotic_para_outra_pessoa: data.para_outra_pessoa,
+    iprotic_o_que_deseja: data.o_que_deseja,
+    iprotic_tipo_atendimento: data.tipo_atendimento,
+    iprotic_mesa_responsavel: data.mesa_responsavel,
+    iprotic_info_adicional: data.info_adicional || ''
+  });
+  const separator = SERVICENOW_CATALOG_URL.includes('?') ? '&' : '?';
+  return `${SERVICENOW_CATALOG_URL}${separator}${params.toString()}`;
+}
+
+/**
+ * Abre uma lista de URLs, uma aba por vez, com um pequeno
+ * intervalo entre elas. Retorna { opened, blocked } via callback,
+ * já que window.open é assíncrono em relação ao popup blocker.
+ */
+function openUrlsInTabs(urls) {
+  return new Promise(resolve => {
+    const blocked = [];
+    let opened = 0;
+
+    urls.forEach((url, i) => {
+      setTimeout(() => {
+        const win = window.open(url, '_blank');
+        if (win) {
+          opened++;
+        } else {
+          blocked.push(url);
+        }
+        if (i === urls.length - 1) {
+          resolve({ opened, blocked });
+        }
+      }, i * TAB_OPEN_INTERVAL_MS);
+    });
+
+    if (urls.length === 0) resolve({ opened: 0, blocked: [] });
+  });
+}
+
+function runOpenTickets(emails, data) {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg viewBox="0 0 16 16" fill="currentColor" style="animation:spin 0.8s linear infinite">
+      <path d="M8 1a7 7 0 107 7A7 7 0 008 1zm0 12.5A5.5 5.5 0 118 2.5 5.5 5.5 0 018 13.5z" opacity=".3"/>
+      <path d="M8 1a7 7 0 010 14V1z" opacity=".9"/>
+    </svg> Abrindo abas…`;
+  hideBlockedNotice();
+
+  const urls = emails.map(email => buildServiceNowUrl(data, email));
+  console.log('[IPROTIC] Abrindo', urls.length, 'chamado(s) no ServiceNow:', urls);
+
+  openUrlsInTabs(urls).then(({ opened, blocked }) => {
+    btn.disabled = false;
     btn.innerHTML = `
-      <svg viewBox="0 0 16 16" fill="currentColor" style="animation:spin 0.8s linear infinite">
-        <path d="M8 1a7 7 0 107 7A7 7 0 008 1zm0 12.5A5.5 5.5 0 118 2.5 5.5 5.5 0 018 13.5z" opacity=".3"/>
-        <path d="M8 1a7 7 0 010 14V1z" opacity=".9"/>
-      </svg> Processando…`;
+      <svg viewBox="0 0 16 16" fill="currentColor">
+        <path d="M15.854.146a.5.5 0 01.11.54l-5.819 14.547a.75.75 0 01-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 01.124-1.33L15.314.037a.5.5 0 01.54.11z"/>
+      </svg> Enviar Chamados`;
 
-    /*
-     * PONTO DE INTEGRAÇÃO COM O SCRIPT PYTHON
-     * ─────────────────────────────────────────
-     * Os dados abaixo são os parâmetros que o script Python
-     * espera receber. Substitua o setTimeout pelo método de
-     * comunicação adequado (ex: fetch para uma API local,
-     * ou pywebview / tkinter bridge, dependendo da implementação).
-     *
-     * Estrutura do objeto `data`:
-     * {
-     *   para_outra_pessoa: "Sim" | "Não",
-     *   emails:            string[],           <- lista de e-mails/chaves
-     *   o_que_deseja:      "Registros de Proatividade",  <- fixo
-     *   tipo_atendimento:  string,             <- selecionado pelo analista
-     *   mesa_responsavel:  "N1-SD_PADRAO",     <- fixo
-     *   info_adicional:    string              <- opcional
-     * }
-     */
-    console.log('[IPROTIC] Payload para o script Python:', JSON.stringify(data, null, 2));
-
-    /* TODO: substituir pelo método de integração com o Python */
-    setTimeout(() => {
+    if (blocked.length > 0) {
+      lastBlockedUrls = blocked;
+      showBlockedNotice(blocked.length);
       showToast(
-        `${data.emails.length} chamado${data.emails.length > 1 ? 's enviados' : ' enviado'} com sucesso!`,
+        `${opened} aba${opened !== 1 ? 's' : ''} aberta${opened !== 1 ? 's' : ''}, ${blocked.length} bloqueada${blocked.length !== 1 ? 's' : ''} pelo navegador.`,
+        'error'
+      );
+    } else {
+      showToast(
+        `${opened} chamado${opened > 1 ? 's enviados' : ' enviado'} — verifique as abas abertas.`,
         'success'
       );
-      btn.disabled = false;
-      btn.innerHTML = `
-        <svg viewBox="0 0 16 16" fill="currentColor">
-          <path d="M15.854.146a.5.5 0 01.11.54l-5.819 14.547a.75.75 0 01-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 01.124-1.33L15.314.037a.5.5 0 01.54.11z"/>
-        </svg> Enviar Chamados`;
-    }, 1800);
+    }
   });
+}
+
+function showBlockedNotice(count) {
+  const notice = document.getElementById('blocked-notice');
+  if (!notice) return;
+  document.getElementById('blocked-count').textContent = count;
+  notice.style.display = 'flex';
+}
+
+function hideBlockedNotice() {
+  const notice = document.getElementById('blocked-notice');
+  if (notice) notice.style.display = 'none';
 }
 
 /* ──────────────────────────────────────────────────────────
