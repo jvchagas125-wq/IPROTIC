@@ -91,12 +91,47 @@
       </svg>
     </div>
     <div class="info-banner-text">
-      <strong>Antes do primeiro uso:</strong> instale a extensão Tampermonkey e adicione o userscript
-      de auto-preenchimento do ServiceNow — sem ele, as abas abrem mas os formulários não são
-      preenchidos sozinhos. Consulte o analista responsável pela automação para obter o userscript.
-      <br><strong>Tampermonkey bloqueado pelo administrador do PC?</strong> use a
-      <a href="bookmarklet.html" style="color:var(--sn-blue-accent); font-weight:600;">alternativa em favorito (bookmarklet)</a>,
-      que faz o mesmo preenchimento sem precisar instalar nenhuma extensão.
+      <strong>Antes do primeiro uso:</strong> instale o Python e as dependências do script
+      <code>automacao_iprotic.py</code> — sem ele, as abas abrem mas os formulários não são
+      preenchidos sozinhos. Veja o passo a passo completo logo abaixo.
+    </div>
+  </div>
+
+  <!-- ══ AUTOMAÇÃO 100% VIA PYTHON ══ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-icon navy">
+        <svg viewBox="0 0 16 16" class="icon-navy">
+          <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5v-4.5h1.5v4.5zm0-6h-1.5v-1.5h1.5v1.5z"/>
+        </svg>
+      </div>
+      <div class="section-header-label">
+        <h2>Automação 100% automática — script Python</h2>
+        <span>Abre e preenche todos os chamados sozinho</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.85;">
+        O script <code>automacao_iprotic.py</code> abre e preenche
+        <strong>todas as abas sozinho</strong> — sem instalar extensão de
+        navegador e sem precisar de nenhum clique manual por aba.
+      </p>
+      <ol style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.9; padding-left:20px;">
+        <li>Preencha o formulário na página inicial normalmente e clique em
+          <strong>"Baixar dados (Python)"</strong> em vez de "Enviar Chamados"
+          — isso baixa o arquivo <code>iprotic-chamados.json</code>.</li>
+        <li>Instale, uma única vez: <code>pip install playwright</code> e
+          depois <code>playwright install chromium</code>.</li>
+        <li>Rode: <code>python automacao_iprotic.py caminho\para\iprotic-chamados.json</code></li>
+        <li>Na primeira vez, faça login no ServiceNow na janela que abrir e
+          pressione ENTER no terminal para continuar — as próximas execuções
+          reaproveitam essa sessão salva.</li>
+        <li>Revise cada aba aberta e confirme o envio manualmente.</li>
+      </ol>
+      <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.85;">
+        Consulte o analista responsável pela automação para obter o arquivo
+        <code>automacao_iprotic.py</code> e o passo a passo completo.
+      </p>
     </div>
   </div>
 
@@ -121,6 +156,7 @@
         <li>Abertura de abas revista para funcionar de forma consistente em <strong>Chrome, Edge e Firefox</strong>.</li>
         <li>Aviso e botão de reabertura para abas bloqueadas pelo navegador.</li>
         <li>Novo menu lateral com as páginas <strong>Sobre</strong> e <strong>Avisos</strong>.</li>
+        <li>Automação 100% automática via script <strong>Python</strong>, sem precisar de extensão de navegador.</li>
       </ul>
     </div>
   </div>
