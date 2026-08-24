@@ -275,10 +275,36 @@ function initPreview() {
 let lastBlockedUrls = [];
 
 function initSubmit() {
-  document.getElementById('main-form').addEventListener('submit', e => {
+  document.getElementById('main-form').addEventListener('submit', async e => {
     e.preventDefault();
     const data = collectData();
     if (!data) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = `
+      <svg viewBox="0 0 16 16" fill="currentColor" style="animation:spin 0.8s linear infinite">
+        <path d="M8 1a7 7 0 107 7A7 7 0 008 1zm0 12.5A5.5 5.5 0 118 2.5 5.5 5.5 0 018 13.5z" opacity=".3"/>
+        <path d="M8 1a7 7 0 010 14V1z" opacity=".9"/>
+      </svg> Verificando automação local…`;
+
+    const payload = buildTicketsPayload(data);
+    const agentResult = await sendToLocalAgent(payload);
+
+    if (agentResult) {
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 16 16" fill="currentColor">
+          <path d="M15.854.146a.5.5 0 01.11.54l-5.819 14.547a.75.75 0 01-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 01.124-1.33L15.314.037a.5.5 0 01.54.11z"/>
+        </svg> Enviar Chamados`;
+      const n = payload.tickets.length;
+      showToast(`${n} chamado${n !== 1 ? 's' : ''} enviado${n !== 1 ? 's' : ''} para a automação local — abrindo e preenchendo sozinho.`, 'success');
+      return;
+    }
+
+    /* Agente local não detectado (não está rodando nesta máquina) —
+       cai no comportamento anterior: abre as abas do ServiceNow no
+       próprio navegador para preenchimento/revisão manual. */
     runOpenTickets(data.emails, data);
   });
 }
@@ -307,10 +333,28 @@ function initRetryBlocked() {
 }
 
 /**
+ * Monta o payload de chamados no formato que os scripts Python
+ * (iprotic_local_agent.py e automacao_iprotic.py) esperam.
+ */
+function buildTicketsPayload(data) {
+  return {
+    gerado_em: new Date().toISOString(),
+    tickets: data.emails.map(email => ({
+      email,
+      para_outra_pessoa: data.para_outra_pessoa,
+      o_que_deseja: data.o_que_deseja,
+      tipo_atendimento: data.tipo_atendimento,
+      mesa_responsavel: data.mesa_responsavel,
+      info_adicional: data.info_adicional,
+    })),
+  };
+}
+
+/**
  * Gera o arquivo iprotic-chamados.json com os dados do formulário,
- * no formato que o script Python (automacao_iprotic.py) espera —
- * alternativa 100% automática para quem não pode instalar o
- * Tampermonkey (bloqueio de TI) nem usar o bookmarklet.
+ * para rodar manualmente com o automacao_iprotic.py — alternativa
+ * para quem prefere não deixar o agente local (iprotic_local_agent.py)
+ * rodando em segundo plano o tempo todo.
  */
 function initDownloadJson() {
   const btn = document.getElementById('download-json-btn');
@@ -319,17 +363,7 @@ function initDownloadJson() {
     const data = collectData();
     if (!data) return;
 
-    const payload = {
-      gerado_em: new Date().toISOString(),
-      tickets: data.emails.map(email => ({
-        email,
-        para_outra_pessoa: data.para_outra_pessoa,
-        o_que_deseja: data.o_que_deseja,
-        tipo_atendimento: data.tipo_atendimento,
-        mesa_responsavel: data.mesa_responsavel,
-        info_adicional: data.info_adicional,
-      })),
-    };
+    const payload = buildTicketsPayload(data);
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
@@ -343,6 +377,46 @@ function initDownloadJson() {
 
     showToast(`Arquivo baixado com ${data.emails.length} chamado${data.emails.length !== 1 ? 's' : ''}. Use-o com o automacao_iprotic.py.`, 'success');
   });
+}
+
+/* ──────────────────────────────────────────────────────────
+   AGENTE LOCAL (iprotic_local_agent.py) — quando esse script
+   Python está rodando em segundo plano na máquina do analista,
+   o botão "Enviar Chamados" envia os dados direto para ele via
+   HTTP local, sem baixar arquivo nenhum e sem rodar nada na mão:
+   ele mesmo abre e preenche as abas do ServiceNow via Playwright.
+   Se o agente não estiver rodando, o site cai automaticamente no
+   comportamento anterior (abre as abas em branco no navegador).
+────────────────────────────────────────────────────────── */
+const LOCAL_AGENT_URL     = 'http://127.0.0.1:8765/enviar';
+const LOCAL_AGENT_TOKEN   = 'iprotic-local-2026'; // precisa bater com TOKEN em iprotic_local_agent.py
+const LOCAL_AGENT_TIMEOUT_MS = 1200;
+
+/**
+ * Tenta entregar o payload ao agente local. Retorna a resposta (objeto)
+ * em caso de sucesso, ou null se o agente não estiver acessível/rodando
+ * (nesse caso o chamador deve usar o fallback de abrir as abas direto).
+ */
+async function sendToLocalAgent(payload) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), LOCAL_AGENT_TIMEOUT_MS);
+  try {
+    const res = await fetch(LOCAL_AGENT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Iprotic-Token': LOCAL_AGENT_TOKEN
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    clearTimeout(timer);
+    return null;
+  }
 }
 
 /**
