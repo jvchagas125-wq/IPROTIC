@@ -124,16 +124,88 @@ function initFileUpload() {
 }
 
 function processFile(file, statusEl) {
+  const extension = (file.name.split('.').pop() || '').toLowerCase();
+  const isSpreadsheet = extension === 'xlsx' || extension === 'xls';
+
+  if (isSpreadsheet) {
+    processSpreadsheetFile(file, statusEl);
+  } else {
+    processTextFile(file, statusEl);
+  }
+}
+
+function processTextFile(file, statusEl) {
   const reader = new FileReader();
   reader.onload = e => {
     const emails = parseEmails(e.target.result);
-    statusEl.textContent = `✓ ${file.name} — ${emails.length} e-mail${emails.length !== 1 ? 's' : ''} encontrado${emails.length !== 1 ? 's' : ''}`;
-    statusEl.style.display = 'block';
-    statusEl.style.color = 'var(--sn-green-dark)';
-    /* Armazena para uso na coleta de dados */
-    statusEl.dataset.emails = JSON.stringify(emails);
+    reportFileEmails(file, emails, statusEl);
   };
+  reader.onerror = () => reportFileError(file, statusEl, 'Não foi possível ler o arquivo.');
   reader.readAsText(file);
+}
+
+function processSpreadsheetFile(file, statusEl) {
+  if (typeof XLSX === 'undefined') {
+    reportFileError(
+      file,
+      statusEl,
+      'Biblioteca de leitura de planilhas não carregou (verifique a conexão com a internet) — use .txt/.csv ou tente novamente.'
+    );
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const workbook = XLSX.read(e.target.result, { type: 'array' });
+      const emails = extractEmailsFromWorkbook(workbook);
+      reportFileEmails(file, emails, statusEl);
+    } catch (err) {
+      console.error('[IPROTIC] Erro ao ler planilha:', err);
+      reportFileError(file, statusEl, 'Não foi possível ler essa planilha. Verifique o formato do arquivo.');
+    }
+  };
+  reader.onerror = () => reportFileError(file, statusEl, 'Não foi possível ler o arquivo.');
+  reader.readAsArrayBuffer(file);
+}
+
+/**
+ * Lê a primeira aba da planilha e extrai os valores da primeira
+ * coluna preenchida (um e-mail/chave por linha, igual ao modo
+ * manual). Se a primeira linha parecer um cabeçalho (não contém
+ * "@" mas as linhas seguintes contêm), ela é descartada.
+ */
+function extractEmailsFromWorkbook(workbook) {
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) return [];
+  const sheet = workbook.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+  let values = rows
+    .map(row => (row && row[0] !== undefined ? String(row[0]).trim() : ''))
+    .filter(v => v.length > 0);
+
+  const looksLikeHeader = values.length > 1
+    && !values[0].includes('@')
+    && values.slice(1).some(v => v.includes('@'));
+  if (looksLikeHeader) values = values.slice(1);
+
+  return values;
+}
+
+function reportFileEmails(file, emails, statusEl) {
+  statusEl.textContent = `✓ ${file.name} — ${emails.length} e-mail${emails.length !== 1 ? 's' : ''} encontrado${emails.length !== 1 ? 's' : ''}`;
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--sn-green-dark)';
+  /* Armazena para uso na coleta de dados */
+  statusEl.dataset.emails = JSON.stringify(emails);
+}
+
+function reportFileError(file, statusEl, message) {
+  statusEl.textContent = `✗ ${file.name} — ${message}`;
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--sn-red)';
+  delete statusEl.dataset.emails;
 }
 
 /* ──────────────────────────────────────────────────────────
