@@ -14,6 +14,10 @@ sem nada específico de um só fabricante.
 
 - `index.html`, `style.css`, `script.js` — site atualizado (substitua os
   três arquivos originais por estes).
+- `logo-icon.png`, `favicon.png` — **arquivos novos**, gerados a partir da
+  logo que você enviou. Precisam ser adicionados ao repositório na raiz
+  (mesma pasta do `index.html`) — sem eles, o ícone do topo e o ícone da
+  aba do navegador não aparecem.
 - `iprotic-servicenow-autofill.user.js` — userscript de auto-preenchimento,
   instalado uma única vez no navegador de cada analista.
 
