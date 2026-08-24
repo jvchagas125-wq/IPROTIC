@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPROTIC — Instalar bookmarklet</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="bookmarklet">
+
+<!-- ══════════════════════════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <button type="button" class="hamburger-btn" id="hamburger-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="side-menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="topbar-logo">
+    <div class="logo-icon">
+      <img src="logo-icon.png" alt="IPROTIC" />
+    </div>
+    <div>
+      <div class="topbar-title">IPROTIC</div>
+    </div>
+  </div>
+  <div class="topbar-divider"></div>
+  <span class="topbar-badge">Automação ServiceNow</span>
+  <div class="topbar-right">
+    <span class="topbar-env">Abertura Automática · v2.0</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════
+     MENU LATERAL (hambúrguer)
+══════════════════════════════════════════════════════════ -->
+<div class="side-menu-backdrop" id="side-menu-backdrop"></div>
+<nav class="side-menu" id="side-menu" aria-label="Menu principal">
+  <div class="side-menu-header">
+    <div class="side-menu-logo">
+      <img src="logo-icon.png" alt="IPROTIC" />
+      <span>IPROTIC</span>
+    </div>
+    <button type="button" class="side-menu-close" id="side-menu-close" aria-label="Fechar menu">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M1 1l12 12M13 1L1 13"/>
+      </svg>
+    </button>
+  </div>
+  <ul class="side-menu-links">
+    <li><a href="index.html" data-page="index">Início</a></li>
+    <li><a href="sobre.html" data-page="sobre">Sobre</a></li>
+    <li><a href="avisos.html" data-page="avisos">Avisos</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONTEÚDO PRINCIPAL
+══════════════════════════════════════════════════════════ -->
+<main class="page">
+
+  <div class="page-header">
+    <div class="page-header-eyebrow">
+      <div class="eyebrow-dot"></div>
+      <span class="eyebrow-text">Alternativa sem extensão</span>
+    </div>
+    <h1>Instalar o bookmarklet de preenchimento</h1>
+    <p>Use esta opção se o Tampermonkey estiver bloqueado pelo administrador do seu computador (mensagem "Seu administrador bloqueou..."). O bookmarklet faz o mesmo preenchimento automático, mas como um favorito do navegador — sem instalar nenhuma extensão.</p>
+  </div>
+
+  <div class="info-banner warning">
+    <div class="info-banner-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8.982 1.566a1.13 1.13 0 00-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 01-1.1 0L7.1 5.995A.905.905 0 018 5zm.002 6a1 1 0 110 2 1 1 0 010-2z"/>
+      </svg>
+    </div>
+    <div class="info-banner-text">
+      <strong>Diferença importante:</strong> o Tampermonkey preenche o formulário sozinho, assim que a aba abre.
+      O bookmarklet precisa de <strong>um clique seu em cada aba</strong> — funciona igual, só não é 100% automático.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-icon green">
+        <svg viewBox="0 0 16 16" class="icon-green">
+          <path d="M8 1a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM2.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5H2.5z"/>
+        </svg>
+      </div>
+      <div class="section-header-label">
+        <h2>Passo 1 — Instalar</h2>
+        <span>Arraste o botão abaixo para a barra de favoritos</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.7; margin-bottom:14px;">
+          Se a barra de favoritos não estiver visível, pressione <code>Ctrl+Shift+B</code> para exibi-la.
+          Depois, arraste o botão abaixo para dentro dela (não clique — arraste e solte):
+        </p>
+        <p style="text-align:center; margin: 18px 0;">
+          <a id="bookmarklet-link" href="#"
+             style="display:inline-flex; align-items:center; gap:8px; background:var(--sn-green-dark); color:#fff; font-weight:600; font-size:14px; padding:12px 24px; border-radius:var(--radius-sm); text-decoration:none; cursor:grab;"
+             title="Arraste este link para a barra de favoritos">
+            ⇖ IPROTIC: Preencher ServiceNow
+          </a>
+        </p>
+        <div class="field-hint">
+          Se o link acima não carregar corretamente, recarregue esta página (o código do bookmarklet é montado via JavaScript ao abrir).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-icon navy">
+        <svg viewBox="0 0 16 16" class="icon-navy">
+          <path d="M1 3a1 1 0 011-1h12a1 1 0 011 1v.5L8 9 1 3.5V3zm0 2.121V12a1 1 0 001 1h12a1 1 0 001-1V5.121L8 10.877 1 5.12z"/>
+        </svg>
+      </div>
+      <div class="section-header-label">
+        <h2>Passo 2 — Usar</h2>
+        <span>Toda vez que abrir os chamados</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.7;">
+          Na página inicial do IPROTIC, clique em <strong>Enviar Chamados</strong> normalmente — as abas do
+          ServiceNow vão abrir. Em cada aba, espere o formulário do catálogo carregar e clique no favorito
+          <strong>"IPROTIC: Preencher ServiceNow"</strong> que você instalou. Os campos serão preenchidos
+          automaticamente; revise e confirme o envio do chamado.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-icon amber">
+        <svg viewBox="0 0 16 16" class="icon-amber">
+          <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5v-4.5h1.5v4.5zm0-6h-1.5v-1.5h1.5v1.5z"/>
+        </svg>
+      </div>
+      <div class="section-header-label">
+        <h2>Não consegue arrastar?</h2>
+        <span>Instalação manual</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <p style="font-size:13.5px; color:var(--sn-gray-800); line-height:1.7;">
+          Clique com o botão direito na barra de favoritos → <strong>Adicionar página</strong> (ou
+          <strong>Adicionar favorito</strong>). Dê o nome <code>IPROTIC: Preencher ServiceNow</code> e, no
+          campo de endereço/URL, cole exatamente o código do link acima (clique com o botão direito nele →
+          <strong>Copiar link</strong>, ou copie o texto abaixo):
+        </p>
+        <textarea readonly id="bookmarklet-code" style="margin-top:10px; font-family:'DM Mono',monospace; font-size:11px; min-height:90px;"></textarea>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="nav.js"></script>
+<script src="bookmarklet-embed.js"></script>
+</body>
+</html>
