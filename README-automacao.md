@@ -102,69 +102,94 @@ Recomendação: mantenha `AUTO_SUBMIT = false` até ter certeza de que os
 seletores estão corretos — um clique automático em um campo mal
 identificado pode enviar um chamado com dados incorretos.
 
-## Passo 5 — Alternativas caso o Tampermonkey esteja bloqueado pelo TI
+## Passo 5 — Automação 100% automática via Python (sem extensão)
 
 Em máquinas corporativas (imagem Petrobras), o administrador pode bloquear
 a instalação de extensões de navegador — nesse caso o Tampermonkey não
-pode ser instalado. Há duas alternativas, sem precisar de extensão:
+pode ser instalado. A alternativa é usar **Playwright** para controlar o
+navegador diretamente pelo protocolo de automação — não é uma extensão,
+então não esbarra no bloqueio de instalação de extensões do TI. Há duas
+formas de usar, com o mesmo motor por trás:
 
-### Opção A — Bookmarklet (favorito especial), preenchimento manual por aba
+### Opção A — Agente local (`iprotic_local_agent.py`), instantâneo
 
-- Arquivo: `bookmarklet.html` (página de instalação já publicada no site,
-  acessível pelo menu ☰ → Avisos → link "alternativa em favorito").
-- Funciona arrastando um link para a barra de favoritos do navegador; ao
-  clicar nesse favorito dentro de uma aba do ServiceNow já aberta pelo
-  IPROTIC, ele preenche o formulário daquela aba.
-- Não precisa instalar nada, mas ainda exige um clique manual no favorito
-  em cada aba aberta (não é 100% automático).
-
-### Opção B — Script Python (`automacao_iprotic.py`), 100% automático
-
-- Arquivo: `automacao_iprotic.py` (novo neste pacote).
-- Usa a biblioteca **Playwright** para controlar o navegador diretamente
-  pelo protocolo de automação — não é uma extensão, então não esbarra no
-  bloqueio de instalação de extensões do TI.
-- Abre e preenche **todas** as abas sozinho, sem clique manual por aba
-  (só a confirmação final de envio, que continua manual por padrão).
+- Arquivos: `iprotic_local_agent.py` e `iniciar_agente_iprotic.bat` (novos
+  neste pacote).
+- Fica rodando em segundo plano na máquina do analista, escutando em
+  `http://127.0.0.1:8765`. O site detecta esse agente sozinho: ao clicar
+  em **"Enviar Chamados"**, os dados são enviados direto para o agente —
+  **sem baixar arquivo nenhum e sem rodar nada na hora do envio** — que
+  abre e preenche todas as abas automaticamente.
+- Se o agente não estiver rodando, o site cai automaticamente no
+  comportamento anterior (abre as abas em branco para preenchimento
+  manual) — nada quebra para quem ainda não configurou o agente.
 
 **Como usar:**
 
-1. No site, preencha o formulário normalmente e, em vez de (ou além de)
-   "Enviar Chamados", clique em **"Baixar dados (Python)"**. Isso baixa um
-   arquivo `iprotic-chamados.json` com os dados de todos os e-mails.
-2. Instale as dependências uma única vez (requer Python 3 instalado na
+1. Instale as dependências uma única vez (requer Python 3 instalado na
    máquina):
    ```
    pip install playwright
    playwright install chromium
    ```
-3. Rode o script apontando para o arquivo baixado:
-   ```
-   python automacao_iprotic.py Downloads\iprotic-chamados.json
-   ```
-4. Na primeira execução, uma janela do navegador abre para você fazer
-   login no ServiceNow (SSO da Petrobras) normalmente. Depois de logado,
-   volte ao terminal e pressione ENTER — o script reaproveita essa sessão
-   salva localmente nas próximas execuções, sem pedir login de novo
-   enquanto ela não expirar.
-5. O script abre uma aba por e-mail e preenche os campos automaticamente.
-   Revise cada uma e clique em enviar manualmente (ou ajuste
+2. Rode `python iprotic_local_agent.py` (ou dê duplo clique em
+   `iniciar_agente_iprotic.bat`) e deixe a janela aberta em segundo plano
+   (pode minimizar).
+3. Na primeira execução do dia, uma janela do navegador abre para você
+   fazer login no ServiceNow (SSO da Petrobras) normalmente. Depois de
+   logado, volte ao terminal e pressione ENTER — a sessão fica salva
+   localmente, então os próximos envios não pedem login de novo enquanto
+   ela não expirar.
+4. No site, preencha o formulário e clique em **Enviar Chamados**
+   normalmente — pronto, sem mais nenhum passo manual.
+5. Revise cada aba aberta e confirme o envio manualmente (ou ajuste
    `AUTO_SUBMIT = True` no topo do script depois de validar visualmente
    que o preenchimento está correto — mesma recomendação de cautela do
    Passo 4).
 
-Assim como o userscript e o bookmarklet, os textos de rótulo usados para
-encontrar os campos (`FIELD_LABELS`, no topo do script) são palpites —
-confirme/ajuste com um teste de um único e-mail antes de usar em lote.
+**Deixar o agente iniciando sozinho com o Windows (opcional):**
+pressione `Win+R`, digite `shell:startup` e Enter para abrir a pasta de
+Inicialização do Windows, e copie um **atalho** de
+`iniciar_agente_iprotic.bat` para dentro dela. A partir do próximo login,
+o agente já sobe sozinho — só o login do SSO continua manual na primeira
+vez do dia.
+
+**Segurança:** o agente só aceita conexões vindas do próprio computador
+(`127.0.0.1`) — nenhuma máquina da rede consegue chamá-lo. O site também
+envia um token simples junto com os dados (não é uma proteção forte, só
+evita disparos acidentais de outras páginas abertas no navegador).
+
+### Opção B — Script por arquivo (`automacao_iprotic.py`), sob demanda
+
+Prefere não deixar nada rodando em segundo plano o tempo todo? Use este
+modo: você baixa os dados manualmente e roda o script quando quiser.
+
+1. No site, preencha o formulário normalmente e clique em
+   **"Baixar dados (Python)"** em vez de "Enviar Chamados". Isso baixa um
+   arquivo `iprotic-chamados.json` com os dados de todos os e-mails.
+2. Instale as dependências (mesmo passo 1 da Opção A, se ainda não tiver
+   feito).
+3. Rode o script apontando para o arquivo baixado:
+   ```
+   python automacao_iprotic.py Downloads\iprotic-chamados.json
+   ```
+4. Mesmo fluxo de login/sessão da Opção A.
+5. O script abre uma aba por e-mail e preenche os campos automaticamente.
+   Revise cada uma e clique em enviar manualmente.
+
+Nos dois casos, os textos de rótulo usados para encontrar os campos
+(`FIELD_LABELS`, no topo de cada script) são palpites — confirme/ajuste
+com um teste de um único e-mail antes de usar em lote.
 
 ## Fluxo resumido
 
 1. Analista preenche o formulário no site do IPROTIC e clica em
-   **Enviar Chamados** (ou, sem Tampermonkey/extensão, em **"Baixar dados
-   (Python)"** e roda `automacao_iprotic.py`).
-2. O site abre uma aba por e-mail, cada uma com os dados na URL (ou o
-   script Python abre e preenche cada aba sozinho).
-3. O userscript (ou o bookmarklet, ou o script Python), em cada aba,
-   preenche o formulário do ServiceNow.
+   **Enviar Chamados**.
+2. Se o agente local (`iprotic_local_agent.py`) estiver rodando, os dados
+   vão direto para ele — sem download, sem passo manual — e ele abre e
+   preenche cada aba sozinho. Caso contrário, o site abre uma aba em
+   branco por e-mail para preenchimento manual (ou o analista pode usar
+   "Baixar dados (Python)" + `automacao_iprotic.py` depois, em lote).
+3. O agente/script preenche o formulário do ServiceNow em cada aba.
 4. O analista revisa e clica em enviar em cada aba (ou, com
-   `AUTO_SUBMIT = true`, o próprio script/userscript envia).
+   `AUTO_SUBMIT = true`, o próprio script envia).
