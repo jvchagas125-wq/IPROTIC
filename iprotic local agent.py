@@ -21,7 +21,11 @@ cada analista.
 
 INSTALAÇÃO (uma vez só, requer Python 3 instalado na máquina):
     pip install playwright
-    playwright install chromium
+
+    Não é preciso rodar "playwright install chromium": este agente usa o
+    Microsoft Edge que já está instalado na máquina (channel="msedge"),
+    em vez de baixar um Chromium à parte — evita esbarrar em bloqueios de
+    rede corporativos contra download de binário de navegador.
 
 COMO USAR:
     python iprotic_local_agent.py
@@ -302,11 +306,26 @@ def main():
     print(f"Perfil/sessão do navegador salvo em: {PROFILE_DIR}\n")
 
     with sync_playwright() as p:
-        _browser_context = p.chromium.launch_persistent_context(
-            str(PROFILE_DIR),
-            headless=False,
-            viewport={"width": 1280, "height": 900},
-        )
+        try:
+            # channel="msedge" reaproveita o Microsoft Edge já instalado na
+            # máquina (padrão em imagens Petrobras) em vez de baixar um
+            # Chromium à parte — evita esbarrar em bloqueios de rede da
+            # empresa contra downloads de binário de navegador.
+            _browser_context = p.chromium.launch_persistent_context(
+                str(PROFILE_DIR),
+                channel="msedge",
+                headless=False,
+                viewport={"width": 1280, "height": 900},
+            )
+        except Exception as exc:
+            sys.exit(
+                "Não foi possível abrir o Microsoft Edge via Playwright "
+                f"(erro: {exc}).\n"
+                "Confira se o Edge está instalado no caminho padrão. Se seu "
+                "PC usa outro navegador baseado em Chromium, troque "
+                'channel="msedge" por channel="chrome" no topo deste bloco '
+                "e rode de novo."
+            )
 
         login_page = _browser_context.new_page()
         login_page.goto("https://petrobras.service-now.com/", wait_until="domcontentloaded")
