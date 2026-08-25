@@ -179,6 +179,15 @@ def process_ticket(context, ticket, index, total):
 # ── FLUXO PRINCIPAL ─────────────────────────────────────────────────────
 
 def main():
+    # Força a exibição imediata de cada linha no Prompt de Comando do
+    # Windows — sem isso, o texto pode ficar "preso" no buffer e só
+    # aparecer de uma vez quando você aperta uma tecla, dando a
+    # impressão de que nada está acontecendo.
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except Exception:
+        pass
+
     parser = argparse.ArgumentParser(description="Automação IPROTIC — abre e preenche chamados no ServiceNow.")
     parser.add_argument("arquivo_json", help="Caminho do arquivo iprotic-chamados.json baixado do site.")
     parser.add_argument("--headless", action="store_true", help="Não mostra a janela do navegador (não use na primeira execução, precisa ver a tela para logar).")
