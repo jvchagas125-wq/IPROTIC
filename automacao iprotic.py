@@ -15,7 +15,11 @@ ServiceNow sozinho.
 
 INSTALAÇÃO (uma vez só):
     pip install playwright
-    playwright install chromium
+
+    Não é preciso rodar "playwright install chromium": este script usa o
+    Microsoft Edge que já está instalado na máquina (channel="msedge"),
+    em vez de baixar um Chromium à parte — evita esbarrar em bloqueios de
+    rede corporativos contra download de binário de navegador.
 
 USO:
     python automacao_iprotic.py caminho\\para\\iprotic-chamados.json
@@ -194,11 +198,26 @@ def main():
     PROFILE_DIR.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            str(PROFILE_DIR),
-            headless=args.headless,
-            viewport={"width": 1280, "height": 900},
-        )
+        try:
+            # channel="msedge" reaproveita o Microsoft Edge já instalado na
+            # máquina (padrão em imagens Petrobras) em vez de baixar um
+            # Chromium à parte — evita esbarrar em bloqueios de rede da
+            # empresa contra downloads de binário de navegador.
+            context = p.chromium.launch_persistent_context(
+                str(PROFILE_DIR),
+                channel="msedge",
+                headless=args.headless,
+                viewport={"width": 1280, "height": 900},
+            )
+        except Exception as exc:
+            sys.exit(
+                "Não foi possível abrir o Microsoft Edge via Playwright "
+                f"(erro: {exc}).\n"
+                "Confira se o Edge está instalado no caminho padrão. Se seu "
+                "PC usa outro navegador baseado em Chromium, troque "
+                'channel="msedge" por channel="chrome" no topo deste bloco '
+                "e rode de novo."
+            )
 
         login_page = context.new_page()
         login_page.goto("https://petrobras.service-now.com/", wait_until="domcontentloaded")
