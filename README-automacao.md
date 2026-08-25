@@ -107,7 +107,11 @@ identificado pode enviar um chamado com dados incorretos.
 O preenchimento automático dos chamados é feito via **Playwright**, que
 controla o navegador diretamente pelo protocolo de automação — não é uma
 extensão de navegador, então não esbarra em bloqueios de instalação de
-extensões da TI. Há duas formas de usar, com o mesmo motor por trás:
+extensões da TI. Os dois scripts (`iprotic_local_agent.py` e
+`automacao_iprotic.py`) usam `channel="msedge"`, ou seja, reaproveitam o
+Microsoft Edge já instalado na máquina em vez de baixar um Chromium à
+parte — não é preciso rodar `playwright install chromium`. Há duas
+formas de usar, com o mesmo motor por trás:
 
 ### Opção A — Agente local (`iprotic_local_agent.py`), instantâneo
 
@@ -123,12 +127,16 @@ extensões da TI. Há duas formas de usar, com o mesmo motor por trás:
 
 **Como usar:**
 
-1. Instale as dependências uma única vez (depois de instalar o Python —
-   veja o Passo 1):
+1. Abra o **Prompt de Comando** do Windows (não é o Python/IDLE —
+   pressione `Win+R`, digite `cmd` e Enter) e rode, uma única vez (depois
+   de instalar o Python — veja o Passo 1):
    ```
    pip install playwright
-   playwright install chromium
    ```
+   Não precisa rodar `playwright install chromium` — veja a nota acima
+   sobre `channel="msedge"`. Se aparecer um aviso de "atividade de
+   download bloqueada pela Companhia", veja **"Se o `pip install`
+   for bloqueado"** logo abaixo antes de continuar.
 2. Rode `python iprotic_local_agent.py` (ou dê duplo clique em
    `iniciar_agente_iprotic.bat`) e deixe a janela aberta em segundo plano
    (pode minimizar).
@@ -175,6 +183,30 @@ modo: você baixa os dados manualmente e roda o script quando quiser.
 Nos dois casos, os textos de rótulo usados para encontrar os campos
 (`FIELD_LABELS`, no topo de cada script) são palpites — confirme/ajuste
 com um teste de um único e-mail antes de usar em lote (Passo 3).
+
+### Se o `pip install` for bloqueado ("atividade de download bloqueada pela Companhia")
+
+Em máquinas Petrobras, a rede pode bloquear downloads diretos do
+repositório público do Python (pythonhosted.org) — o próprio aviso de
+bloqueio já indica o caminho aceito. Duas opções:
+
+**A) JFrog Artifactory (caminho oficial):** peça ao System Team da sua
+área a URL do proxy PyPI no JFrog e rode:
+```
+pip install playwright --index-url https://SUA-URL-DO-JFROG-AQUI/simple
+```
+Para não precisar repetir o parâmetro depois, configure permanentemente:
+```
+pip config set global.index-url https://SUA-URL-DO-JFROG-AQUI/simple
+```
+
+**B) Instalação offline:** peça para alguém com acesso liberado (outra
+máquina, ou fora da rede Petrobras) rodar `pip download playwright -d
+pasta_playwright` e te repassar essa pasta por um canal interno
+aprovado. Depois, instale localmente sem baixar nada:
+```
+pip install --no-index --find-links=pasta_playwright playwright
+```
 
 ## Fluxo resumido
 
